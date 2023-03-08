@@ -3,9 +3,9 @@
 pragma solidity ^0.8.14;
 
 import "@openzeppelin/contracts/token/ERC721/ERC721.sol";
-import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/token/ERC721/extensions/ERC721URIStorage.sol";
 import "@openzeppelin/contracts/token/ERC721/extensions/ERC721Pausable.sol";
+import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/utils/Counters.sol";
 import "@openzeppelin/contracts/utils/Strings.sol";
 
@@ -38,12 +38,7 @@ contract ProposalNFT is ERC721Pausable, ERC721URIStorage, Ownable {
 
     /**
      * @dev
-     * - このコントラクトをデプロイしたアドレスだけがmint可能 onlyOwner
-     * - NFT停止状態の時には実行できない whenNotPaused()
-     * - tokenIdをインクリメント _tokenIds.increment()
-     * - nftMint関数実行アドレス(=デプロイアドレス)にtokenIdを紐づけ _msgSender()
-     * - mintの際にURIを設定　_setTokenURI（）
-     * - EVENT発火 emit TokenURIChanged
+     * 提案NFTを作成
      */
     function nftMint(address proposerAddress, string memory tokenUri)
         public
