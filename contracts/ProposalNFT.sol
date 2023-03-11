@@ -36,40 +36,4 @@ contract ProposalNFT is ERC721URIStorage, Ownable {
 
         emit TokenURIChanged(proposerAddress, newTokenId, tokenUri);
     }
-
-    /**
-     * @dev
-     * - オーバーライド
-     */
-    function _beforeTokenTransfer(
-        address from,
-        address to,
-        uint256 tokenId
-    ) internal override(ERC721, ERC721Pausable) {
-        super._beforeTokenTransfer(from, to, tokenId);
-    }
-
-    /**
-     * @dev
-     * - オーバーライド
-     */
-    function _burn(uint256 tokenId)
-        internal
-        override(ERC721, ERC721URIStorage)
-    {
-        super._burn(tokenId);
-    }
-
-    /**
-     * @dev
-     * - オーバーライド
-     */
-    function tokenURI(uint256 tokenId)
-        public
-        view
-        override(ERC721, ERC721URIStorage)
-        returns (string memory)
-    {
-        return super.tokenURI(tokenId);
-    }
 }
