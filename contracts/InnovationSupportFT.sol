@@ -61,6 +61,6 @@ contract InnovationSupportFT is ERC20, Ownable {
      * デポジットされているトークン量を取得
      */
     function balanceOfDeposit() public view virtual returns (uint256) {
-        return balanceOf(msg.sender);
+        return balanceOf(owner());
     }
 }
