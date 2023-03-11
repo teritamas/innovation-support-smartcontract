@@ -4,37 +4,21 @@ pragma solidity ^0.8.14;
 
 import "@openzeppelin/contracts/token/ERC721/ERC721.sol";
 import "@openzeppelin/contracts/token/ERC721/extensions/ERC721URIStorage.sol";
-import "@openzeppelin/contracts/token/ERC721/extensions/ERC721Pausable.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/utils/Counters.sol";
 import "@openzeppelin/contracts/utils/Strings.sol";
 
-contract ProposalNFT is ERC721Pausable, ERC721URIStorage, Ownable {
-    /**
-     * @dev
-     * - _tokenIdsはCountersの全関数が利用可能
-     */
+contract ProposalNFT is ERC721URIStorage, Ownable {
     using Counters for Counters.Counter;
     Counters.Counter private _tokenIds;
 
-    struct Voter {
-        uint256 weight; // weight is accumulated by delegation
-        bool voted; // if true, that person already voted
-        address delegate; // person delegated to
-        uint256 vote; // index of the voted proposal
-    }
-
-    /**
-     * @dev
-     * - URI設定時に誰がどのtokenIdに何のURIを設定したか記録する
-     */
     event TokenURIChanged(
         address indexed sender,
         uint256 indexed tokenId,
         string uri
     );
 
-    constructor() ERC721("ProposalNFT", "PNFT") {}
+    constructor() ERC721("ProposalNFT", "ISPNFT") {}
 
     /**
      * @dev
@@ -43,7 +27,6 @@ contract ProposalNFT is ERC721Pausable, ERC721URIStorage, Ownable {
     function nftMint(address proposerAddress, string memory tokenUri)
         public
         onlyOwner
-        whenNotPaused
     {
         _tokenIds.increment();
         uint256 newTokenId = _tokenIds.current();
@@ -52,22 +35,6 @@ contract ProposalNFT is ERC721Pausable, ERC721URIStorage, Ownable {
         _setTokenURI(newTokenId, tokenUri);
 
         emit TokenURIChanged(proposerAddress, newTokenId, tokenUri);
-    }
-
-    /**
-     * @dev
-     * - NFT停止
-     */
-    function pause() public onlyOwner {
-        _pause();
-    }
-
-    /**
-     * @dev
-     * - NFT停止の解除
-     */
-    function unpause() public onlyOwner {
-        _unpause();
     }
 
     /**
