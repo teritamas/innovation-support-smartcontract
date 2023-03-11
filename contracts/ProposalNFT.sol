@@ -6,7 +6,6 @@ import "@openzeppelin/contracts/token/ERC721/ERC721.sol";
 import "@openzeppelin/contracts/token/ERC721/extensions/ERC721URIStorage.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/utils/Counters.sol";
-import "@openzeppelin/contracts/utils/Strings.sol";
 
 contract ProposalNFT is ERC721URIStorage, Ownable {
     using Counters for Counters.Counter;
@@ -21,10 +20,9 @@ contract ProposalNFT is ERC721URIStorage, Ownable {
     constructor() ERC721("ProposalNFT", "ISPNFT") {}
 
     /**
-     * @dev
-     * 提案NFTを作成
+     * 提案NFTの作成
      */
-    function nftMint(address proposerAddress, string memory tokenUri)
+    function mintNft(address proposerAddress, string memory tokenUri)
         public
         onlyOwner
     {
