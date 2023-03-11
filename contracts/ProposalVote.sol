@@ -1,7 +1,12 @@
 // SPDX-License-Identifier: GPL-3.0
 pragma solidity ^0.8.14;
 
+import "@openzeppelin/contracts/utils/Counters.sol";
+
 contract ProposalVote {
+    using Counters for Counters.Counter;
+    Counters.Counter private _tokenIds;
+
     // 投票者
     struct Voter {
         bool agreement;
@@ -51,8 +56,10 @@ contract ProposalVote {
     /**
      * 投票題目を作成する
      */
-    function entryProposal(address proposerAddress, uint256 proposalNftTokenId) public {
-        Proposal storage proposal = proposals[proposalNftTokenId];
+    function entryProposal(address proposerAddress, string memory tokenUri) public {
+        _tokenIds.increment();
+        uint256 newTokenId = _tokenIds.current();
+        Proposal storage proposal = proposals[newTokenId];
 
         // addressの初期値=address(0)なのでそれと等しくない場合は、登録済みの提案とする
         require(proposal.proposerAddress == address(0), "This proposal is already registered.");
@@ -61,6 +68,9 @@ contract ProposalVote {
         proposal.voteTotalCount = 0;
         proposal.voteAgreementCount = 0;
         proposal.votingStatus = voting;
+
+        // nftを発行する
+        IProposalNFT(_nftContractAddress).mintNftFromTokenId(proposerAddress, tokenUri, newTokenId);
     }
 
     /**
@@ -93,10 +103,11 @@ contract ProposalVote {
 
         targetProposal.votingStatus = finalJudgement ? accept : reject;
 
-        // if(finalJudgement){ // 可決された場合NFTの所有者にトークンを発行する
-        //     address tokenContractAddress = IProposalNFT(_nftContractAddress).ownerOf(proposalNftTokenId);
-        //     IInnovationSupportFT(_tokenContractAddress).transfer(tokenContractAddress, 1);
-        // }
+        if(finalJudgement){ // 可決された場合NFTの所有者にトークンを発行する
+            address tokenContractAddress = IProposalNFT(_nftContractAddress).ownerOf(proposalNftTokenId);
+            uint8 tokenAmount = IProposalNFT(_nftContractAddress).getTokenAmount(proposalNftTokenId);
+            IInnovationSupportFT(_tokenContractAddress).transfer(tokenContractAddress, tokenAmount);
+        }
     }
 
     /**
@@ -130,4 +141,6 @@ interface IInnovationSupportFT {
  */
 interface IProposalNFT {
     function ownerOf(uint256 tokenId) external returns (address owner);
+    function getTokenAmount(uint256 tokenId) external returns(uint8);
+    function mintNftFromTokenId(address proposerAddress, string memory tokenUri, uint256 tokenId) external;
 }
