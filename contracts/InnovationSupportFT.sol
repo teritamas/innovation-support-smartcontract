@@ -15,8 +15,7 @@ contract InnovationSupportFT is ERC20, Ownable {
     }
 
     /**
-     * @dev
-     * - URI設定時に誰がどのtokenIdに何のURIを設定したか記録する
+     * URI設定時に誰がどのtokenIdに何のURIを設定したか記録する
      */
     event TokenMint(
         address indexed sender,
@@ -24,7 +23,6 @@ contract InnovationSupportFT is ERC20, Ownable {
     );
 
     /**
-     * @dev
      * 指定したアドレスにトークンを発行
      */
     function mint(address senderAddress, uint256 amount )
@@ -35,7 +33,6 @@ contract InnovationSupportFT is ERC20, Ownable {
     }
 
     /**
-     * @dev
      * 指定したアドレスのトークンを焼却
      */
     function burn(address senderAddress, uint256 amount )
@@ -46,14 +43,13 @@ contract InnovationSupportFT is ERC20, Ownable {
     }
 
     /**
-     * @dev
-     * 指定したアドレスのトークンを焼却
+     * オーナーににトークンを発行
      */
     function mintDeposit() 
         public
         onlyOwner
     {
-        mint(msg.sender, depositAmmount);
+        mint(owner(), depositAmmount);
     }
 
     /**

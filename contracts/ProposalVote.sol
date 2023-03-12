@@ -56,7 +56,7 @@ contract ProposalVote {
     /**
      * 投票題目を作成する
      */
-    function entryProposal(address proposerAddress, string memory tokenUri) public {
+    function entryProposal(address proposerAddress, string memory tokenUri, uint8 tokenAmount) public {
         _tokenIds.increment();
         uint256 newTokenId = _tokenIds.current();
         Proposal storage proposal = proposals[newTokenId];
@@ -70,7 +70,7 @@ contract ProposalVote {
         proposal.votingStatus = voting;
 
         // nftを発行する
-        IProposalNFT(_nftContractAddress).mintNftFromTokenId(proposerAddress, tokenUri, newTokenId);
+        IProposalNFT(_nftContractAddress).mintNftFromTokenId(proposerAddress, tokenUri, newTokenId, tokenAmount);
     }
 
     /**
@@ -142,5 +142,5 @@ interface IInnovationSupportFT {
 interface IProposalNFT {
     function ownerOf(uint256 tokenId) external returns (address owner);
     function getTokenAmount(uint256 tokenId) external returns(uint8);
-    function mintNftFromTokenId(address proposerAddress, string memory tokenUri, uint256 tokenId) external;
+    function mintNftFromTokenId(address proposerAddress, string memory tokenUri, uint256 tokenId, uint8 tokenAmount) external;
 }
