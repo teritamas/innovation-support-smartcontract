@@ -10,7 +10,7 @@ import "@openzeppelin/contracts/utils/Counters.sol";
 contract ProposalNFT is ERC721URIStorage, Ownable {
     uint256 private _tokneIdCounter = 0;
 
-    mapping(uint256 => uint8) private _tokenAmount;
+    mapping(uint256 => uint256) private _tokenAmount;
 
     event TokenURIChanged(
         address indexed sender,
@@ -23,7 +23,7 @@ contract ProposalNFT is ERC721URIStorage, Ownable {
     /**
      * 提案NFTの作成
      */
-    function mintNft(address proposerAddress, string memory tokenUri, uint8 tokenAmount)
+    function mintNft(address proposerAddress, string memory tokenUri, uint256 tokenAmount)
         public
         onlyOwner
     {
@@ -34,38 +34,23 @@ contract ProposalNFT is ERC721URIStorage, Ownable {
     }
 
     /**
-     * トークンIDを指定して提案NFTの作成
-     */
-    function mintNftFromTokenId(address proposerAddress, string memory tokenUri, uint256 tokenId, uint8 tokenAmount)
-        public
-        onlyOwner
-    {
-        require(_tokneIdCounter < tokenId, "This tokenId is already used.");
-
-        _tokneIdCounter = tokenId; // カウンターのtokenIdを最新にする
-        uint256 newTokenId = _tokneIdCounter; 
-        
-        _mintAndSetUri(proposerAddress, tokenUri, newTokenId, tokenAmount);
-    }
-
-    /**
      * 提案により取得したい金額を設定する
      */ 
-    function setTokenAmount(uint256 newTokenId, uint8 tokenAmount) public {
+    function setTokenAmount(uint256 newTokenId, uint256 tokenAmount) public {
         _tokenAmount[newTokenId] = tokenAmount;
     }
 
     /**
      * NFTに紐づく調達金額を取得する
      */ 
-    function getTokenAmount(uint256 tokenId) public view returns(uint8) {
+    function getTokenAmount(uint256 tokenId) public view returns(uint256) {
         return _tokenAmount[tokenId];
     }
 
     /**
      * NFTを発行しURIを設定する
      */
-    function _mintAndSetUri(address proposerAddress, string memory tokenUri, uint256 newTokenId, uint8 tokenAmount) private {
+    function _mintAndSetUri(address proposerAddress, string memory tokenUri, uint256 newTokenId, uint256 tokenAmount) private {
         _mint(proposerAddress, newTokenId);
         _setTokenURI(newTokenId, tokenUri);
         setTokenAmount(newTokenId, tokenAmount);
