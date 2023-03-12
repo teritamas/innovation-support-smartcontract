@@ -1,12 +1,7 @@
 // SPDX-License-Identifier: GPL-3.0
 pragma solidity ^0.8.14;
 
-import "@openzeppelin/contracts/utils/Counters.sol";
-
 contract ProposalVote {
-    using Counters for Counters.Counter;
-    Counters.Counter private _tokenIds;
-
     // 投票者
     struct Voter {
         bool agreement;
@@ -31,18 +26,18 @@ contract ProposalVote {
     mapping(uint256 => Proposal) public proposals;
 
     // 外部コントラクトのアドレス
-    address private _tokenContractAddress;
+    address private _erc20ContractAddress;
     address private _nftContractAddress;
 
     constructor() {
     }
 
-    function setTokenContractAddress(address tokenContractAddress) external {
-        _tokenContractAddress = tokenContractAddress;
+    function setERC20ContractAddress(address ERC20ContractAddress) external {
+        _erc20ContractAddress = ERC20ContractAddress;
     }
 
-    function getTokenContractAddress() external view returns (address){
-        return _tokenContractAddress;
+    function getERC20ContractAddress() external view returns (address){
+        return _erc20ContractAddress;
     }
 
     function setNftContractAddress(address nftContractAddress) external {
@@ -56,21 +51,20 @@ contract ProposalVote {
     /**
      * 投票題目を作成する
      */
-    function entryProposal(address proposerAddress, string memory tokenUri, uint8 tokenAmount) public {
-        _tokenIds.increment();
-        uint256 newTokenId = _tokenIds.current();
-        Proposal storage proposal = proposals[newTokenId];
+    function entryProposal(uint256 newtokenId) public {
+        // NFTが登録されていない存在しない場合は失敗する
+        address _proposerAddress = _proposerNFTAddress(newtokenId);
+        require(_proposerAddress != address(0), "This proposal is not exists.");
+
+        Proposal storage proposal = proposals[newtokenId];
 
         // addressの初期値=address(0)なのでそれと等しくない場合は、登録済みの提案とする
         require(proposal.proposerAddress == address(0), "This proposal is already registered.");
         
-        proposal.proposerAddress = proposerAddress;
+        proposal.proposerAddress = _proposerAddress;
         proposal.voteTotalCount = 0;
         proposal.voteAgreementCount = 0;
         proposal.votingStatus = voting;
-
-        // nftを発行する
-        IProposalNFT(_nftContractAddress).mintNftFromTokenId(proposerAddress, tokenUri, newTokenId, tokenAmount);
     }
 
     /**
@@ -104,9 +98,12 @@ contract ProposalVote {
         targetProposal.votingStatus = finalJudgement ? accept : reject;
 
         if(finalJudgement){ // 可決された場合NFTの所有者にトークンを発行する
-            address tokenContractAddress = IProposalNFT(_nftContractAddress).ownerOf(proposalNftTokenId);
-            uint8 tokenAmount = IProposalNFT(_nftContractAddress).getTokenAmount(proposalNftTokenId);
-            IInnovationSupportFT(_tokenContractAddress).transfer(tokenContractAddress, tokenAmount);
+            address proposerAddress = _proposerNFTAddress(proposalNftTokenId);
+            uint256 tokenAmount = IProposalNFT(_nftContractAddress).getTokenAmount(proposalNftTokenId);
+
+            // このアドレスにデポジットされたトークンを提案者のアドレスに移管する
+            IERC20(_erc20ContractAddress).approve(address(this), tokenAmount);
+            IERC20(_erc20ContractAddress).transfer(proposerAddress, tokenAmount);
         }
     }
 
@@ -122,19 +119,28 @@ contract ProposalVote {
     /**
      * 提案が存在する場合はそれを返し、存在しな場合はエラーを返す。
      */ 
-    function _proposalExists(uint proposalNftTokenId) private view returns(Proposal storage){
+    function _proposalExists(uint256 proposalNftTokenId) private view returns(Proposal storage){
         Proposal storage proposal = proposals[proposalNftTokenId];
         require(proposal.proposerAddress != address(0), "This proposal is not registered.");
         return proposal;
     } 
+
+    /**
+     * トークンIDから提案NFTの所有者を取得
+     */ 
+    function _proposerNFTAddress(uint256 proposalNftTokenId) private returns(address){
+        return IProposalNFT(_nftContractAddress).ownerOf(proposalNftTokenId);
+    }
 }
 
 /**
  * トークンコントラクトのインターフェース
  */
-interface IInnovationSupportFT {
+interface IERC20 {
+    function approve(address spender, uint256 amount) external returns (bool);
     function transfer(address to, uint256 amount) external returns (bool);
 }
+
 
 /**
  * 提案NFTコントラクトのインターフェース
@@ -142,5 +148,4 @@ interface IInnovationSupportFT {
 interface IProposalNFT {
     function ownerOf(uint256 tokenId) external returns (address owner);
     function getTokenAmount(uint256 tokenId) external returns(uint8);
-    function mintNftFromTokenId(address proposerAddress, string memory tokenUri, uint256 tokenId, uint8 tokenAmount) external;
 }
