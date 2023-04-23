@@ -137,3 +137,5 @@ dist
 node_modules*
 *artifacts*
 build*
+
+cache
