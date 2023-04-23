@@ -27,6 +27,26 @@ TOYOTAWeb3 ハッカソンで開発した、イノベーションサポートで
 
 本リポジトリのソースコードを、任意のネットワークにデプロイすることで、スマートコントラクトの機能を利用することができます。
 
+### truffle を利用してデプロイする手順
+
+#### 1. infura でプロジェクトを作成する
+
+infura 上でプロジェクトを作成する。
+
+https://app.infura.io/dashboard
+
+作成後プロジェクト ID を`.env`の`PROJECT_ID=`に記入する。また、デプロイするウォレットの秘密鍵を`.env`の`private_key=`に記入する。
+
+#### 2. デプロイの実行
+
+Ethereum のテストネットにデプロイするために、下記のコマンドを実行する。
+
+```sh:
+$ truffle migrate --network goerli
+```
+
+### RemixIDE を利用してデプロイする手順
+
 下記の手順は RemixIDE を利用してでプロイする手順です。
 
 1. [Remix](https://remix.ethereum.org/#lang=en&optimize=false&runs=200&evmVersion=null&version=soljson-v0.8.18+commit.87f61d96.js)で本リポジトリを Clone する。
