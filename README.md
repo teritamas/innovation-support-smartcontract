@@ -1,3 +1,5 @@
+ **🏆 2023年/トヨタ自動車 × 博報堂キースリー WEB3ハッカソン　最優秀賞 受賞**
+
 # innovation-support-smartcontract
 
 TOYOTAWeb3 ハッカソンで開発した、イノベーションサポートで利用するスマートコントラクトです。
